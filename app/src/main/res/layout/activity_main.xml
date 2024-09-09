@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#CCCCCC"
+    android:fillViewport="true"
+    android:scrollbars="none"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <TextView
+            android:id="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="Android Headless SDK Demo"
+            android:textColor="@android:color/black"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"/>
+
+        <EditText
+            android:id="@+id/input_text_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:hint="Enter Mobile no or Email" />
+
+        <EditText
+            android:id="@+id/otp_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter OTP"
+            android:layout_marginTop="16dp"
+            android:inputType="number"
+            android:maxLength="6"
+            android:maxLines="1"
+            android:visibility="visible" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/otpverify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="Send/Verify OTP"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/infoSociallogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Social Login's"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"/>
+
+        <!-- Row 1 of androidx.appcompat.widget.AppCompatButtons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/whatsapp_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:layout_weight="1"
+                android:background="#8025D366"
+                android:text="Whatsapp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/facebook_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:layout_weight="1"
+                android:background="#801877F2"
+                android:text="Facebook" />
+        </LinearLayout>
+
+        <!-- Row 2 of androidx.appcompat.widget.AppCompatButtons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/twitter_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:layout_weight="1"
+                android:background="#801DA1F2"
+                android:text="Twitter" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/slack_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="#804A154B"
+                android:text="Slack" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/gmail_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:layout_weight="1"
+                android:background="#80DB4437"
+                android:text="Gmail" />
+        </LinearLayout>
+
+        <!-- Row 3 of androidx.appcompat.widget.AppCompatButtons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/linkedin_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:layout_weight="1"
+                android:background="#802867B2"
+                android:text="Linkedin" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/microsoft_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:layout_weight="1"
+                android:background="#8000A4EF"
+                android:text="Microsoft" />
+        </LinearLayout>
+
+        <!-- Row 4 of androidx.appcompat.widget.AppCompatButtons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/discord_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:layout_weight="1"
+                android:background="#801DA1F2"
+                android:text="Discord" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/github_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="#804A154B"
+                android:text="Github" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/twitch_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:layout_weight="1"
+                android:background="#80DB4437"
+                android:text="Twitch" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/headless_response_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="" />
+    </LinearLayout>
+</ScrollView>
