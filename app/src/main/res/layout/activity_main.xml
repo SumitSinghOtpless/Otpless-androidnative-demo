@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#CCCCCC"
+    android:background="#000000"
     android:fillViewport="true"
     android:scrollbars="none"
     tools:context=".MainActivity">
@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:text="Android Headless SDK Demo"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_gravity="center"/>
@@ -46,7 +46,7 @@
             android:id="@+id/otpverify"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="15dp"
             android:text="Send/Verify OTP"
             android:layout_gravity="center"/>
 
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Social Login's"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_gravity="center"/>

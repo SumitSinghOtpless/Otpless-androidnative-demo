@@ -1,4 +1,4 @@
-package com.example.demoandroid
+package com.flutter.app
 
 import org.junit.Test
 

@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.demoandroid"
+    namespace = "com.flutter.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.demoandroid"
+        applicationId = "com.flutter.app"
         minSdk = 30
         targetSdk = 34
         versionCode = 1

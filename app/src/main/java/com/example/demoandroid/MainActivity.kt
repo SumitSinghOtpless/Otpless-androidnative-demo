@@ -1,19 +1,24 @@
-package com.example.demoandroid
+package com.flutter.app
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.otpless.dto.HeadlessChannelType
 import com.otpless.dto.HeadlessRequest
 import com.otpless.dto.HeadlessResponse
+import com.otpless.dto.Tuple
 import com.otpless.main.OtplessManager
 import com.otpless.main.OtplessView
 import com.otpless.utils.Utility
-import org.json.JSONObject
+import java.util.concurrent.Future
+
 
 class MainActivity : AppCompatActivity() {
     var otplessView: OtplessView? = null
@@ -57,12 +62,16 @@ class MainActivity : AppCompatActivity() {
 
         // copy this code in onCreate of your Login Activity
         otplessView = OtplessManager.getInstance().getOtplessView(this)
-        otplessView?.initHeadless("zv6vns27ig0lupi4265d") //replace with your appid provided in documentation
+        otplessView?.initHeadless("ALP5OU9SMLB3NSPYGNSG") //replace with your appid provided in documentation
         otplessView?.setHeadlessCallback { response: HeadlessResponse ->
             this.onHeadlessCallback(response)
         }
+        otplessView?.enableOneTap(false)
+        var appSignature: String? = null
+        appSignature = Utility.getAppSignature(this);
+        Log.d("onCreate", appSignature);
         otplessView?.onNewIntent(intent)
-
+        isTruecallerInstalledAndStartHeadless()
         initTestingView()
     }
 
@@ -89,9 +98,76 @@ class MainActivity : AppCompatActivity() {
             }
             return request
         }
+    private fun openPhoneHint() {
+
+        otplessView!!.phoneHintManager.showPhoneNumberHint(
+            true
+        ) { r: Tuple<String?, java.lang.Exception?> ->
+            if (r.second != null) {
+                var error = "Error in parsing"
+                if (r.second!!.message != null) {
+                    error = r.second!!.message.toString()
+                }
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+            } else {
+                val phoneNumber = r.first
+                val formattedPhoneNumber = phoneNumber?.let { normalizePhoneNumber(it) }
+                inputEditText!!.setText(formattedPhoneNumber)
+            }
+
+        }
+    }
+    private fun isTruecallerInstalledAndStartHeadless() {
+        val truecallerPackage = "com.truecaller"
+
+        // Check if Truecaller is installed
+        val isInstalled = try {
+            packageManager.getPackageInfo(truecallerPackage, PackageManager.GET_ACTIVITIES)
+            true // Truecaller is installed
+        } catch (e: PackageManager.NameNotFoundException) {
+            false // Truecaller is not installed
+        }
+
+        // If Truecaller is installed, execute the headless request
+        if (isInstalled) {
+            Log.d("TruecallerCheck", "Truecaller is installed, starting headless.")
+            val headlessRequest = HeadlessRequest()
+            val channelType = "TRUE_CALLER"
+            headlessRequest.setChannelType(channelType)
+            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
+                this.onHeadlessCallback(response)
+            }
+        } else {
+            Log.d("TruecallerCheck", "Truecaller is not installed.")
+        }
+    }
+
+    private fun normalizePhoneNumber(phoneNumber: String): String {
+        // Remove non-numeric characters (like spaces, dashes, and parentheses)
+        var cleanedNumber = phoneNumber.replace(Regex("\\D"), "") // \D matches any non-digit character
+
+        // If the cleaned number has more than 10 digits, trim it to the last 10 digits
+        if (cleanedNumber.length > 10) {
+            cleanedNumber = cleanedNumber.takeLast(10)
+        }
+
+        // Ensure that only a 10-digit number is returned
+        return if (cleanedNumber.length == 10) {
+            cleanedNumber
+        } else {
+            "Invalid phone number"
+        }
+    }
 
     private fun initTestingView() {
+        inputEditText?.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus && inputEditText?.text.isNullOrEmpty()) {
+                Log.d("initTestingView", "inputEditText is empty and has focus")
+                openPhoneHint()
+            }
+        }
         otpverify?.setOnClickListener {
+
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
             }
@@ -104,6 +180,7 @@ class MainActivity : AppCompatActivity() {
         }
         //end
         whatsappButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.WHATSAPP
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -111,6 +188,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         gmailButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.GMAIL
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -118,6 +196,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         twitterButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.TWITTER
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -125,6 +204,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         slackButton?.setOnClickListener { _: View? ->
+
             channelType = HeadlessChannelType.SLACK
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -132,6 +212,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         facebookButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.FACEBOOK
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -139,6 +220,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         linkedinButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.LINKEDIN
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -146,6 +228,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         microsoftButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.MICROSOFT
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -153,6 +236,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         disordButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.DISCORD
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -160,6 +244,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         githubButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.GITHUB
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -167,6 +252,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         twitchButton?.setOnClickListener {
+
             channelType = HeadlessChannelType.TWITCH
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
@@ -180,13 +266,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onHeadlessCallback(response: HeadlessResponse) {
-        if (response.statusCode == 200) {
-            val successResponse: JSONObject? = response.response
+        if (response.getStatusCode() == 200) {
+            when (response.getResponseType()) {
+                "INITIATE" -> {
+                    headlessResponseTv?.text = response.toString()
+                }
+                "VERIFY" -> {
+                    headlessResponseTv?.text = response.toString()
+                }
+                "OTP_AUTO_READ" -> {
+                    val otp = response.getResponse()?.optString("otp")
+                    otpEditText?.setText(otp);
+                    otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
+                        this.onHeadlessCallback(response)
+                    }
+                }
+                "ONETAP" -> {
+                    headlessResponseTv?.text = response.toString()
+                }
+            }
+            val successResponse = response.getResponse()
         } else {
-            val error: String = response.response?.optString("errorMessage") ?: ""
+            // handle error
+            val error = response.getResponse()?.optString("errorMessage")
         }
-        headlessResponseTv?.text = response.toString()
     }
+
+
 
     override fun onBackPressed() {
         otplessView?.let {
