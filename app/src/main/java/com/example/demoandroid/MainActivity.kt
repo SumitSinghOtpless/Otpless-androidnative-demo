@@ -60,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         twitchButton = findViewById(R.id.twitch_btn)
         headlessResponseTv = findViewById(R.id.headless_response_tv)
 
+        Utility.debugLogging = true
         // copy this code in onCreate of your Login Activity
         otplessView = OtplessManager.getInstance().getOtplessView(this)
         otplessView?.initHeadless("ALP5OU9SMLB3NSPYGNSG") //replace with your appid provided in documentation
