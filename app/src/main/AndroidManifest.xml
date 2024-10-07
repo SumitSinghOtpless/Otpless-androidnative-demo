@@ -30,7 +30,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:host="otpless"
-                    android:scheme= "otpless.alp5ou9smlb3nspygnsg"/>  <!--replace with your scheme provided in documentation-->
+                    android:scheme= "otpless.YOUR_APP_ID_IN_LOWERCASE"/>  <!--replace with your scheme provided in documentation-->
             </intent-filter>
         </activity>
     </application>

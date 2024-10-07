@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.otpless.dto.HeadlessChannelType
 import com.otpless.dto.HeadlessRequest
 import com.otpless.dto.HeadlessResponse
+import com.otpless.dto.OtpDeliveryChannel
 import com.otpless.dto.Tuple
 import com.otpless.main.OtplessManager
 import com.otpless.main.OtplessView
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         Utility.debugLogging = true
         // copy this code in onCreate of your Login Activity
         otplessView = OtplessManager.getInstance().getOtplessView(this)
-        otplessView?.initHeadless("ALP5OU9SMLB3NSPYGNSG") //replace with your appid provided in documentation
+        otplessView?.initHeadless("YOUR_APP_ID") //replace with your appid provided in documentation
         otplessView?.setHeadlessCallback { response: HeadlessResponse ->
             this.onHeadlessCallback(response)
         }
@@ -87,7 +88,9 @@ class MainActivity : AppCompatActivity() {
                     try {
                         // parse phone number
                         input.toLong()
+                        request.setDeliveryChannel(OtpDeliveryChannel.SMS)
                         request.setPhoneNumber("+91", input)
+
                     } catch (ex: Exception) {
                         request.setEmail(input)
                     }
@@ -168,7 +171,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         otpverify?.setOnClickListener {
-
             otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
                 this.onHeadlessCallback(response)
             }
