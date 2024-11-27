@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         Utility.debugLogging = true
         // copy this code in onCreate of your Login Activity
         otplessView = OtplessManager.getInstance().getOtplessView(this)
-        otplessView?.initHeadless("YOUR_APP_ID") //replace with your appid provided in documentation
+        otplessView?.initHeadless("YOUR_APPID_UPPERCASE") //replace with your appid provided in documentation
         otplessView?.setHeadlessCallback { response: HeadlessResponse ->
             this.onHeadlessCallback(response)
         }
@@ -90,7 +90,6 @@ class MainActivity : AppCompatActivity() {
                         input.toLong()
                         request.setDeliveryChannel(OtpDeliveryChannel.SMS)
                         request.setPhoneNumber("+91", input)
-
                     } catch (ex: Exception) {
                         request.setEmail(input)
                     }
@@ -99,6 +98,7 @@ class MainActivity : AppCompatActivity() {
                 if (otp.trim().isNotEmpty()) {
                     request.setOtp(otp)
                 }
+                Log.d("Headless Request", input+" "+otp)
             }
             return request
         }
@@ -269,6 +269,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onHeadlessCallback(response: HeadlessResponse) {
+        Log.d("OTPless Response", response.toString())
         if (response.getStatusCode() == 200) {
             when (response.getResponseType()) {
                 "INITIATE" -> {
