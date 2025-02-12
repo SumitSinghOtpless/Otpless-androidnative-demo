@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.flutter.app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.flutter.app"
@@ -37,6 +37,7 @@ android {
 
 dependencies {
 
+    implementation (libs.otpless.headless.sdk)
     implementation(libs.otpless.android.sdk)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

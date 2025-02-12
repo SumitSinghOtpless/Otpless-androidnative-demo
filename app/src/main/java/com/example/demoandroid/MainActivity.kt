@@ -10,15 +10,16 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.otpless.dto.HeadlessChannelType
-import com.otpless.dto.HeadlessRequest
-import com.otpless.dto.HeadlessResponse
-import com.otpless.dto.OtpDeliveryChannel
+import androidx.lifecycle.lifecycleScope
 import com.otpless.dto.Tuple
-import com.otpless.main.OtplessManager
 import com.otpless.main.OtplessView
 import com.otpless.utils.Utility
-import java.util.concurrent.Future
+import com.otpless.v2.android.sdk.dto.OtplessChannelType
+import com.otpless.v2.android.sdk.dto.OtplessRequest
+import com.otpless.v2.android.sdk.dto.OtplessResponse
+import com.otpless.v2.android.sdk.dto.ResponseTypes
+import com.otpless.v2.android.sdk.main.OtplessSDK
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var inputEditText: EditText? = null
     private var otpEditText: EditText? = null
 
-    private var channelType: HeadlessChannelType? = null
+    private var channelTypes: OtplessChannelType? = null
     private var headlessResponseTv: TextView? = null
 
     private var otpverify: Button? = null
@@ -63,48 +64,47 @@ class MainActivity : AppCompatActivity() {
 
         Utility.debugLogging = true
         // copy this code in onCreate of your Login Activity
-        otplessView = OtplessManager.getInstance().getOtplessView(this)
-        otplessView?.initHeadless("YOUR_APPID_UPPERCASE") //replace with your appid provided in documentation
-        otplessView?.setHeadlessCallback { response: HeadlessResponse ->
-            this.onHeadlessCallback(response)
-        }
-        otplessView?.enableOneTap(false)
+        OtplessSDK.initialize(appId = "YOUR_APPID_UPPERCASE", activity = this) //replace with your appid provided in dashboard
+        OtplessSDK.setResponseCallback(this::onOtplessResponse)
         var appSignature: String? = null
         appSignature = Utility.getAppSignature(this);
         Log.d("onCreate", appSignature);
-        otplessView?.onNewIntent(intent)
         isTruecallerInstalledAndStartHeadless()
         initTestingView()
     }
 
-    private val headlessRequest: HeadlessRequest
+    private val otplessRequest: OtplessRequest
         get() {
-            val input = inputEditText!!.text.toString()
-            val request = HeadlessRequest()
-            channelType?.let {
+            val input = inputEditText?.text.toString()
+            val request = OtplessRequest()
+
+            channelTypes?.let {
                 request.setChannelType(it)
             } ?: run {
                 if (input.trim().isNotEmpty()) {
                     try {
                         // parse phone number
                         input.toLong()
-                        request.setDeliveryChannel(OtpDeliveryChannel.SMS)
-                        request.setPhoneNumber("+91", input)
+                        request.setDeliveryChannel("WHATSAPP")
+                        // Note: Order of parameters changed in new SDK
+                        request.setPhoneNumber(input, "+91")
                     } catch (ex: Exception) {
                         request.setEmail(input)
                     }
                 }
-                val otp = otpEditText!!.text.toString()
+
+                val otp = otpEditText?.text.toString()
                 if (otp.trim().isNotEmpty()) {
                     request.setOtp(otp)
                 }
-                Log.d("Headless Request", input+" "+otp)
+                Log.d("Otpless Request", "Input: $input, OTP: $otp")
             }
             return request
         }
+
     private fun openPhoneHint() {
 
-        otplessView!!.phoneHintManager.showPhoneNumberHint(
+        otplessView?.phoneHintManager?.showPhoneNumberHint(
             true
         ) { r: Tuple<String?, java.lang.Exception?> ->
             if (r.second != null) {
@@ -135,11 +135,10 @@ class MainActivity : AppCompatActivity() {
         // If Truecaller is installed, execute the headless request
         if (isInstalled) {
             Log.d("TruecallerCheck", "Truecaller is installed, starting headless.")
-            val headlessRequest = HeadlessRequest()
-            val channelType = "TRUE_CALLER"
-            headlessRequest.setChannelType(channelType)
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.TRUECALLER)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         } else {
             Log.d("TruecallerCheck", "Truecaller is not installed.")
@@ -171,8 +170,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
         otpverify?.setOnClickListener {
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            lifecycleScope.launch {
+                OtplessSDK.start(otplessRequest, ::onOtplessResponse)
             }
         }
         // This code will be used to detect the WhatsApp installed status on the user's device.
@@ -183,126 +182,128 @@ class MainActivity : AppCompatActivity() {
         }
         //end
         whatsappButton?.setOnClickListener {
-
-            channelType = HeadlessChannelType.WHATSAPP
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.WHATSAPP)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         gmailButton?.setOnClickListener {
-
-            channelType = HeadlessChannelType.GMAIL
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.GMAIL)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         twitterButton?.setOnClickListener {
-
-            channelType = HeadlessChannelType.TWITTER
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.TWITTER)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         slackButton?.setOnClickListener { _: View? ->
-
-            channelType = HeadlessChannelType.SLACK
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.SLACK)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         facebookButton?.setOnClickListener {
-
-            channelType = HeadlessChannelType.FACEBOOK
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.FACEBOOK)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         linkedinButton?.setOnClickListener {
-
-            channelType = HeadlessChannelType.LINKEDIN
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.LINKEDIN)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         microsoftButton?.setOnClickListener {
-
-            channelType = HeadlessChannelType.MICROSOFT
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.MICROSOFT)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         disordButton?.setOnClickListener {
-
-            channelType = HeadlessChannelType.DISCORD
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.DISCORD)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         githubButton?.setOnClickListener {
-
-            channelType = HeadlessChannelType.GITHUB
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.GITHUB)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
             }
         }
 
         twitchButton?.setOnClickListener {
+            val request = OtplessRequest()
+            request.setChannelType(OtplessChannelType.TWITCH)
+            lifecycleScope.launch {
+                OtplessSDK.start(request, ::onOtplessResponse)
+            }
+        }
+    }
 
-            channelType = HeadlessChannelType.TWITCH
-            otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                this.onHeadlessCallback(response)
+
+    private fun onOtplessResponse(response: OtplessResponse) {
+        OtplessSDK.commit(response)
+        when (response.responseType) {
+            ResponseTypes.INITIATE -> {
+                // notify that authentication has been initiated
+                headlessResponseTv?.text = response.toString()
+            }
+            ResponseTypes.VERIFY -> {
+                // notify that verification has failed.
+                headlessResponseTv?.text = response.toString()
+            }
+            ResponseTypes.INTERNET_ERR -> {
+                // notify that the request could not be processed because of poor/no internet connection
+                headlessResponseTv?.text = response.toString()
+            }
+            ResponseTypes.ONETAP -> {
+                // final response with token
+                val token = response.response?.optJSONObject("data")?.optString("token")
+                if (!token.isNullOrBlank()) {
+                    // Process token and proceed.
+                    headlessResponseTv?.text = response.toString()
+                }
+            }
+            ResponseTypes.OTP_AUTO_READ -> {
+                val otp = response.response?.optString("otp")
+                if (!otp.isNullOrBlank()) {
+                    // Autofill the OTP in your TextField/EditText
+                    headlessResponseTv?.text = response.toString()
+                }
+            }
+            ResponseTypes.FALLBACK_TRIGGERED -> {
+                // In case of Smart Auth when channel fallback triggered
+                headlessResponseTv?.text = response.toString()
             }
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        otplessView?.onNewIntent(intent)
-    }
-
-    private fun onHeadlessCallback(response: HeadlessResponse) {
-        Log.d("OTPless Response", response.toString())
-        if (response.getStatusCode() == 200) {
-            when (response.getResponseType()) {
-                "INITIATE" -> {
-                    headlessResponseTv?.text = response.toString()
-                }
-                "VERIFY" -> {
-                    headlessResponseTv?.text = response.toString()
-                }
-                "OTP_AUTO_READ" -> {
-                    val otp = response.getResponse()?.optString("otp")
-                    otpEditText?.setText(otp);
-                    otplessView?.startHeadless(headlessRequest) { response: HeadlessResponse ->
-                        this.onHeadlessCallback(response)
-                    }
-                }
-                "ONETAP" -> {
-                    headlessResponseTv?.text = response.toString()
-                }
-            }
-            val successResponse = response.getResponse()
-        } else {
-            // handle error
-            val error = response.getResponse()?.optString("errorMessage")
+        lifecycleScope.launch {
+            OtplessSDK.onNewIntent(intent)
         }
     }
-
-
-
-    override fun onBackPressed() {
-        otplessView?.let {
-            if (it.onBackPressed()) return
-        }
-        super.onBackPressed()
-    }
-
 }
